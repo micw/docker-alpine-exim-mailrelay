@@ -9,7 +9,7 @@ fi
 
 echo "Using ${MAIL_HOSTNAME} as mail hostname"
 
-echo "primary_hostname = ${MAIL_HOSTNAME}" >> /etc/exim/exim.conf
+sed -i "s/^primary_hostname = .*/primary_hostname = ${MAIL_HOSTNAME}/" /etc/exim/exim.conf
 
 chown -R exim.exim /var/spool/exim
 touch /var/log/exim/mainlog /var/log/exim/rejectlog /var/log/exim/paniclog
