@@ -12,7 +12,7 @@ detected automatically.
 
 # Smarthost relaying
 
-Set MAIL_HOSTNAME and SMARTHOST environment variables to enable relaying via smarthost. TLS is automatically enforced for smarthost conenctions (can be disabled with SMARTHOST_TLS=false).
+Set MAIL_HOSTNAME and SMARTHOST environment variables to enable relaying via smarthost. TLS is automatically enforced for smarthost connections (can be disabled with SMARTHOST_TLS=false).
 
 ## Enable smarthost authentication
 
