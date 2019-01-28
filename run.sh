@@ -90,4 +90,4 @@ chown -R exim.exim /var/log/exim
 
 tail -q -n 0 -f /var/log/exim/* &
 
-exim -bdf -q15m -oX
+exec exim -bdf -q15m -oX
