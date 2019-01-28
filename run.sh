@@ -2,16 +2,61 @@
 
 set -e
 
+check_dns() {
+  echo "Resolving mail hostname"
+  RESOLVED=$( nslookup ${MAIL_HOSTNAME} 2>/dev/null )
+  if [ "$?" -ne "0" ]; then
+    echo "WARNING! ${MAIL_HOSTNAME} cannot be resolved via DNS"
+    return
+  fi
+  echo "Getting my own outbound IP address via api.ipify.org"
+  MYIP=$( wget -O- -q 'https://api.ipify.org?format=text' 2>/dev/null) 
+  if [ "$?" -ne "0" ]; then
+    echo "WARNING! Unable to get my own IP address. Cannot verify if we use the right outbound IP for ${MAIL_HOSTNAME}"
+  fi
+  FOUND_MY_IP=0
+  echo "$RESOLVED"  | while read line; do
+    linedata=(${line})
+    if [ "${linedata[0]}" != "Address" ]; then
+      continue
+    fi
+    if [ "${linedata[3]}" == "${MAIL_HOSTNAME}" ]; then
+      echo "OK: ${MAIL_HOSTNAME} resolves to ${linedata[2]} which resolves back to ${linedata[3]}"
+    else
+      echo "WARNING! ${MAIL_HOSTNAME} resolves to ${linedata[2]} which resolves back to ${linedata[3]}. This should be fixed.".
+    fi
+    if [ "${linedata[2]}" == "${MYIP}" ]; then
+      echo "OK: ${MAIL_HOSTNAME} resolves correctly to my outbound ip address."
+      FOUND_MY_IP=1
+    fi
+  done
+  if [ ! -z "${MYIP}" -a "${FOUND_MY_IP}" -eq 0 ]; then
+    echo "WARNING! ${MAIL_HOSTNAME} does not resolve to my oputbound ip address ${MYIP}. This should be fixed."
+  fi
+}
+
 if [ -z "${MAIL_HOSTNAME}" ]; then
-  echo "MAIL_HOSTNAME not set - tyring to fetch from rancher metadata service"
+  echo "MAIL_HOSTNAME not set - tyring to fetch from rancher metadata service ... "
+  set +e
   MAIL_HOSTNAME=$( wget -O- -q http://rancher-metadata/latest/self/host/name )
+  RC=$?
+  set -e
+  if [ "$RC" -ne "0" ]; then
+    echo "Not running on rancher. Please set MAIL_HOSTNAME."
+    exit 1
+  fi
 fi
 
 echo "Using ${MAIL_HOSTNAME} as mail hostname"
 
 sed -i "s/^primary_hostname = .*/primary_hostname = ${MAIL_HOSTNAME}/" /etc/exim/exim.conf
 
-if [ ! -z "${SMARTHOST}" ]; then
+if [ -z "${SMARTHOST}" ]; then
+  # No smarthost -> check that DNS works properly
+  set +e
+  check_dns
+  set -e
+else
 	echo "Relaying via ${SMARTHOST}"
 	cat << EOF > /etc/exim/routers.conf
 smarthost:
