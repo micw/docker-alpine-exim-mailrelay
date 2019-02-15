@@ -63,7 +63,7 @@ smarthost:
   driver = manualroute
   domains = *
   transport = remote_smtp
-  route_data = ${SMARTHOST}
+  route_data = ${SMARTHOST}::${SMARTHOST_PORT:-25}
   no_more
 EOF
 	if [ "${SMARTHOST_TLS:-true}" != "false" ]; then
