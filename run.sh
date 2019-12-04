@@ -89,6 +89,8 @@ mkdir -p /var/log/exim
 touch /var/log/exim/mainlog /var/log/exim/rejectlog /var/log/exim/paniclog
 chown -R exim.exim /var/log/exim
 
-tail -q -n 0 -f /var/log/exim/* &
+if [ "${TAIL_LOGS:-true}" != "false" ]; then
+    tail -q -n 0 -f /var/log/exim/* &
+fi
 
 exec exim -bdf -q15m -oX
