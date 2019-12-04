@@ -85,6 +85,7 @@ EOF
 fi
 
 chown -R exim.exim /var/spool/exim
+mkdir -p /var/log/exim
 touch /var/log/exim/mainlog /var/log/exim/rejectlog /var/log/exim/paniclog
 chown -R exim.exim /var/log/exim
 
