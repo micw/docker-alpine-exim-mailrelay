@@ -15,7 +15,7 @@ check_dns() {
     echo "WARNING! Unable to get my own IP address. Cannot verify if we use the right outbound IP for ${MAIL_HOSTNAME}"
   fi
   FOUND_MY_IP=0
-  echo "$RESOLVED"  | while read line; do
+  while read line; do
     linedata=(${line})
     if [ "${linedata[0]}" != "Address" ]; then
       continue
@@ -29,7 +29,7 @@ check_dns() {
       echo "OK: ${MAIL_HOSTNAME} resolves correctly to my outbound ip address."
       FOUND_MY_IP=1
     fi
-  done
+  done <<<"$RESOLVED"
   if [ ! -z "${MYIP}" -a "${FOUND_MY_IP}" -eq 0 ]; then
     echo "WARNING! ${MAIL_HOSTNAME} does not resolve to my oputbound ip address ${MYIP}. This should be fixed."
   fi
