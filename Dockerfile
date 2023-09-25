@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.18
 
 RUN apk --update --no-cache add exim bash
 
