@@ -93,4 +93,4 @@ if [ "${TAIL_LOGS:-true}" != "false" ]; then
     tail -q -n 0 -f /var/log/exim/* &
 fi
 
-exec exim -bdf -q15m -oX
+exec exim -bdf -q15m -oX 25
